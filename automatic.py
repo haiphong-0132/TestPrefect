@@ -1,12 +1,20 @@
 from prefect import flow
 
-if __name__ == '__main__':
+source = "https://github.com/haiphong-0132/TestPrefect.git"
+
+if __name__ == "__main__":
     flow.from_source(
-        source='./',
-        entrypoint='etl_pipeline.py:etl_pipeline',
+        source=source,
+        entrypoint="etl_pipeline.py:etl_pipeline",
     ).deploy(
-        name='my-etl-pipeline',
+        name="my-etl-pipeline",
+        job_variables={
+            "env": {
+                "PIP_EXTRA_INDEX_URL": "https://pypi.org/simple",
+                "EXTRA_PIP_PACKAGES": "-r requirements.txt"
+            }
+        },
         parameters={},
-        work_pool_name='my-work-pool',
-        cron='* * * * *'
+        work_pool_name="my-work-pool",
+        cron="0 0 * * *"  # Run daily at midnight
     )
