@@ -71,7 +71,7 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
 
 @flow
 def etl_pipeline():
-    os.system("pip install -r requirements.txt")
+    # os.system("pip install -r requirements.txt")
     sheet_url = 'https://docs.google.com/spreadsheets/d/1ZGbOTAP2W2MIfo5HWvMR40RF6oWSUfR4Va9E_RvczWk/edit?gid=1647286845#gid=1647286845'
     df = extract_from_google_sheet(sheet_url)
     df, table_name = transform_data(df, 'Customers')
