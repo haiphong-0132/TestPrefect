@@ -19,8 +19,7 @@ if __name__ == "__main__":
         schedules=[
             CronSchedule(cron="*/2 * * * *")
         ],
-        # Parameter has 2: sheet_url, table_name
-        # Multiple parameters are separated by commas
+
         parameters={
             'sheet_url': 'https://docs.google.com/spreadsheets/d/15rOu4yxl_mD94y6fKyxeBVHNi4SgOrjI-7q2lxpjyQo/edit?gid=1513155777#gid=1513155777',
             'table_name': 'Employees'

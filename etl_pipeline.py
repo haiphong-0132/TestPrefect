@@ -46,51 +46,23 @@ def transform_data(df: pd.DataFrame, table_name: str):
             
     return df, table_name
 
-# @task
-# def load_to_sql_server(df: pd.DataFrame, table_name: str):
-#     with pyodbc.connect(conn_str) as conn:
-        
-#         cursor = conn.cursor()
-
-#         columns = ', '.join([f"[{col}] NVARCHAR(255)" for col in df.columns])
-#         cursor.execute(
-#             f"""
-#             IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = '{table_name}')
-#             CREATE TABLE [{table_name}] (
-#                 {columns}
-#             )
-#             """
-#         )
-        
-#         # Batch insert data
-#         placeholders = ', '.join(['?' for _ in df.columns])
-#         query = f"INSERT INTO [{table_name}] ({', '.join([f'[{col}]' for col in df.columns])}) VALUES ({placeholders})"
-#         data = [tuple(row) for row in df.itertuples(index=False)]
-#         cursor.fast_executemany = True  # Tăng tốc độ khi chèn batch
-#         cursor.executemany(query, data)
-#         conn.commit()
-
 @task
 def load_to_sql_server(df: pd.DataFrame, table_name: str):
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
 
-        # Determine column types dynamically
         def get_column_type(series):
             if pd.api.types.is_numeric_dtype(series):
-                # For numeric types, use appropriate SQL numeric type
                 if pd.api.types.is_integer_dtype(series):
                     return 'INT'
                 else:
                     return 'FLOAT'
             else:
-                # For string types, use NVARCHAR with maximum length
                 max_length = series.astype(str).str.len().max()
-                # Ensure max length is not too large
-                max_length = min(max_length, 4000)  # SQL Server NVARCHAR max is 4000
+
+                max_length = min(max_length, 4000) 
                 return f'NVARCHAR({max_length})'
 
-        # Create dynamic column definitions
         column_defs = []
         for col in df.columns:
             col_type = get_column_type(df[col])
@@ -98,10 +70,8 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         
         columns_str = ', '.join(column_defs)
 
-        # Drop table if it exists to recreate with correct column sizes
         cursor.execute(f"IF OBJECT_ID('{table_name}') IS NOT NULL DROP TABLE [{table_name}]")
         
-        # Create table with dynamic column definitions
         cursor.execute(
             f"""
             CREATE TABLE [{table_name}] (
@@ -110,11 +80,9 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
             """
         )
         
-        # Prepare data for insertion
         placeholders = ', '.join(['?' for _ in df.columns])
         query = f"INSERT INTO [{table_name}] ({', '.join([f'[{col}]' for col in df.columns])}) VALUES ({placeholders})"
         
-        # Convert data to appropriate types
         def convert_row(row):
             return tuple(
                 str(val)[:4000] if isinstance(val, str) else 
