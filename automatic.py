@@ -10,7 +10,6 @@ if __name__ == "__main__":
         name="my-etl-pipeline",
         job_variables={
             "env": {
-                "PIP_EXTRA_INDEX_URL": "https://pypi.org/simple",
                 "EXTRA_PIP_PACKAGES": "-r requirements.txt"
             }
         },
