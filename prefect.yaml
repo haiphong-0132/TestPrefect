@@ -1,4 +1,4 @@
 pull:
   - prefect.deployments.steps.pip_install_requirements:
       directory: "{{ pull_code.directory }}"
-      requirements_file: requirements.txt
+      requirements_file: ./requirements.txt
