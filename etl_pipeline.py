@@ -19,7 +19,7 @@ conn_str = (
     f"TrustServerCertificate={Secret.load('db-trust-server-certificate').get()};"
 )
 
-@task
+@task(retries=3, retry_delay_seconds=10)
 def extract_from_google_sheet(sheet_url: str):
     scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
@@ -71,7 +71,6 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
 
 @flow
 def etl_pipeline():
-    # os.system("pip install -r requirements.txt")
     sheet_url = 'https://docs.google.com/spreadsheets/d/1ZGbOTAP2W2MIfo5HWvMR40RF6oWSUfR4Va9E_RvczWk/edit?gid=1647286845#gid=1647286845'
     df = extract_from_google_sheet(sheet_url)
     df, table_name = transform_data(df, 'Customers')
