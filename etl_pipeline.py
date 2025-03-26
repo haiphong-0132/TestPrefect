@@ -1,15 +1,12 @@
 # prefect worker start --pool etl-pipeline-tool
 import json
-import os
 import pyodbc
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from prefect import flow, task
-from dotenv import load_dotenv
 from prefect.blocks.system import Secret
 
-load_dotenv()
 
 conn_str = (
     f"DRIVER={Secret.load('db-driver').get()};"
@@ -26,6 +23,7 @@ def extract_from_google_sheet(sheet_url: str):
 
     creds_json = Secret.load('google-credentials').get()
     creds_dict = json.loads(json.dumps(creds_json))
+
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     client = gspread.authorize(creds)
     sheet = client.open_by_url(sheet_url)
@@ -98,7 +96,24 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
 
 @flow
 def etl_pipeline(sheets: list[dict[str, str]]):
-    for sheet_url, table_name in sheets:
+    for sheet in sheets:
+        sheet_url, table_name = sheet["sheet_url"], sheet["table_name"]
         df = extract_from_google_sheet(sheet_url)
         df, table_name = transform_data(df, table_name)
         load_to_sql_server(df, table_name)
+
+
+if __name__ == "__main__":
+    etl_pipeline(
+        [
+        {
+            "sheet_url": "https://docs.google.com/spreadsheets/d/1TVk7_vQbl__q5a4sAgBf6_eKspeut7q_ch55VVAvsW4/edit?gid=152346427#gid=152346427",
+            "table_name": "categories"
+        }, 
+
+        {
+            "sheet_url": "https://docs.google.com/spreadsheets/d/1TSWWA0GGVi3BNK9R38jK9RFQHZf7FCR-x6w0F-PY-8k/edit?gid=1925009959#gid=1925009959",
+            "table_name": "cate_prd_supp"
+        },
+        ]
+    )
