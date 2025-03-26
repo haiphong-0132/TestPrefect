@@ -19,40 +19,18 @@ conn_str = (
     f"TrustServerCertificate={Secret.load('db-trust-server-certificate').get()};"
 )
 
-# @task
-# def extract_from_google_sheet(sheet_url: str):
-#     scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-
-#     creds_json = Secret.load('google-credentials').get()
-#     creds_dict = json.loads(json.dumps(creds_json))
-#     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-#     client = gspread.authorize(creds)
-#     sheet = client.open_by_url(sheet_url)
-#     worksheet = sheet.get_worksheet(0)
-#     records = worksheet.get_all_records()
-#     return pd.DataFrame(records)
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-
 @task
 def extract_from_google_sheet(sheet_url: str):
-    logging.info("Starting data extraction...")
     scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
     creds_json = Secret.load('google-credentials').get()
-    creds_dict = json.loads(json.dumps(creds_json))  # Ensure it's a valid dict
+    creds_dict = json.loads(json.dumps(creds_json))
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
-
     client = gspread.authorize(creds)
     sheet = client.open_by_url(sheet_url)
     worksheet = sheet.get_worksheet(0)
     records = worksheet.get_all_records()
-
-    logging.info(f"Extracted {len(records)} records from Google Sheet.")
     return pd.DataFrame(records)
-
 
 @task
 def transform_data(df: pd.DataFrame, table_name: str):
