@@ -71,9 +71,9 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
 
 @flow
 def etl_pipeline():
-    sheet_url = 'https://docs.google.com/spreadsheets/d/1a84Lw9MdZDXHBHtoN_bkjLUW6EhnjasHzF07SD1XLSA/edit#gid=1460457617'
+    sheet_url = 'https://docs.google.com/spreadsheets/d/1ZGbOTAP2W2MIfo5HWvMR40RF6oWSUfR4Va9E_RvczWk/edit?gid=1647286845#gid=1647286845'
     df = extract_from_google_sheet(sheet_url)
-    df, table_name = transform_data(df, 'Products')
+    df, table_name = transform_data(df, 'Customers')
     load_to_sql_server(df, table_name)
 
 if __name__ == '__main__':
