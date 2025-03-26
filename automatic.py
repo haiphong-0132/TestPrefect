@@ -1,16 +1,16 @@
 from prefect import flow
 
-source = "https://github.com/haiphong-0132/TestPrefect.git"
+REPO = "https://github.com/haiphong-0132/TestPrefect.git"
 
 if __name__ == "__main__":
     flow.from_source(
-        source=source,
+        source=REPO,
         entrypoint="etl_pipeline.py:etl_pipeline",
     ).deploy(
         name="my-etl-pipeline",
         job_variables={
             "env": {
-                "EXTRA_PIP_PACKAGES": "-r requirements.txt"
+                "EXTRA_PIP_PACKAGES": "-r ./requirements.txt"
             }
         },
         parameters={},
