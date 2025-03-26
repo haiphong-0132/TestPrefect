@@ -97,7 +97,7 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         conn.commit()
 
 @flow
-def etl_pipeline(sheets: list):
+def etl_pipeline(sheets: list[dict[str, str]]):
     for sheet_url, table_name in sheets:
         df = extract_from_google_sheet(sheet_url)
         df, table_name = transform_data(df, table_name)
