@@ -24,8 +24,8 @@ def extract_from_google_sheet(sheet_url: str):
     scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
     creds_json = Secret.load('google-credentials').get()
-
-    creds = Credentials.from_service_account_info(creds_json, scopes=scopes)
+    creds_dict = json.loads(json.dumps(creds_json))
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     client = gspread.authorize(creds)
     sheet = client.open_by_url(sheet_url)
     worksheet = sheet.get_worksheet(0)
