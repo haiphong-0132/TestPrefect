@@ -94,26 +94,31 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         cursor.executemany(query, data)
         conn.commit()
 
+# @flow
+# def etl_pipeline(sheets: list[dict[str, str]]):
+#     for sheet in sheets:
+#         sheet_url, table_name = sheet["sheet_url"], sheet["table_name"]
+#         df = extract_from_google_sheet(sheet_url)
+#         df, table_name = transform_data(df, table_name)
+#         load_to_sql_server(df, table_name)
+
 @flow
-def etl_pipeline(sheets: list[dict[str, str]]):
-    for sheet in sheets:
-        sheet_url, table_name = sheet["sheet_url"], sheet["table_name"]
-        df = extract_from_google_sheet(sheet_url)
-        df, table_name = transform_data(df, table_name)
-        load_to_sql_server(df, table_name)
+def etl_pipeline(sheet_url: str, table_name: str):
+    df = extract_from_google_sheet(sheet_url)
+    df, table_name = transform_data(df, table_name)
+    load_to_sql_server(df, table_name)
 
+# if __name__ == "__main__":
+#     etl_pipeline(
+#         [
+#         {
+#             "sheet_url": "https://docs.google.com/spreadsheets/d/1TVk7_vQbl__q5a4sAgBf6_eKspeut7q_ch55VVAvsW4/edit?gid=152346427#gid=152346427",
+#             "table_name": "categories"
+#         }, 
 
-if __name__ == "__main__":
-    etl_pipeline(
-        [
-        {
-            "sheet_url": "https://docs.google.com/spreadsheets/d/1TVk7_vQbl__q5a4sAgBf6_eKspeut7q_ch55VVAvsW4/edit?gid=152346427#gid=152346427",
-            "table_name": "categories"
-        }, 
-
-        {
-            "sheet_url": "https://docs.google.com/spreadsheets/d/1TSWWA0GGVi3BNK9R38jK9RFQHZf7FCR-x6w0F-PY-8k/edit?gid=1925009959#gid=1925009959",
-            "table_name": "cate_prd_supp"
-        },
-        ]
-    )
+#         {
+#             "sheet_url": "https://docs.google.com/spreadsheets/d/1TSWWA0GGVi3BNK9R38jK9RFQHZf7FCR-x6w0F-PY-8k/edit?gid=1925009959#gid=1925009959",
+#             "table_name": "cate_prd_supp"
+#         },
+#         ]
+#     )
