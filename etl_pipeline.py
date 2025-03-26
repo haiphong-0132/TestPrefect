@@ -1,3 +1,4 @@
+import json
 import os
 import pyodbc
 import pandas as pd
@@ -5,22 +6,26 @@ import gspread
 from google.oauth2.service_account import Credentials
 from prefect import flow, task
 from dotenv import load_dotenv
+from prefect.blocks.system import Secret
 
 load_dotenv()
 
 conn_str = (
-    f"DRIVER={os.getenv('DB_DRIVER')};"
-    f"SERVER={os.getenv('DB_SERVER')};"
-    f"DATABASE={os.getenv('DB_NAME')};"
-    f"UID={os.getenv('DB_USER')};"
-    f"PWD={os.getenv('DB_PASSWORD')};"
-    f"TrustServerCertificate={os.getenv('DB_TRUST_SERVER_CERTIFICATE')};"
+    f"DRIVER={Secret.load('db-driver').get()};"
+    f"SERVER={Secret.load('db-server').get()};"
+    f"DATABASE={Secret.load('db-name').get()};"
+    f"UID={Secret.load('db-user').get()};"
+    f"PWD={Secret.load('db-password').get()};"
+    f"TrustServerCertificate={Secret.load('db-trust-server-certificate').get()};"
 )
 
 @task
 def extract_from_google_sheet(sheet_url: str):
     scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-    creds = Credentials.from_service_account_file('credentials.json', scopes=scopes)
+
+    creds_json = Secret.load('google-credentials').get()
+
+    creds = Credentials.from_service_account_info(creds_json, scopes=scopes)
     client = gspread.authorize(creds)
     sheet = client.open_by_url(sheet_url)
     worksheet = sheet.get_worksheet(0)
