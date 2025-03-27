@@ -97,35 +97,20 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         cursor.executemany(query, data)
         conn.commit()
 
-@flow(log_prints=True)
-def process_sheet(sheet_url: str, table_name: str):
+        return f'Loaded {table_name} with {len(data)} rows'
+
+@task
+def process_sheet(sheet_info: dict):
+    sheet_url, table_name = sheet_info['sheet_url'], sheet_info['table_name']
     df = extract_from_google_sheet(sheet_url)
     df, table_name = transform_data(df, table_name)
-    load_to_sql_server(df, table_name)
+    result = load_to_sql_server(df, table_name)
+    return result
 
 @flow(log_prints=True)
 def etl_pipeline(sheets: list[dict[str, str]]):
-    # process_sheet.map(
-    #     sheets,
-    #     unmapped=False,
-    #     return_state=False
-    # )
-    with ThreadPoolExecutor(max_workers=min(len(sheets), 3)) as executor:
-        futures = {
-            executor.submit(
-                process_sheet,
-                sheet['sheet_url'],
-                sheet['table_name']
-            ): sheet['table_name'] for sheet in sheets
-        }
-
-        for future in as_completed(futures):
-            table_name = futures[future]
-            try:
-                future.result()
-                print(f"Successfully processed sheet {table_name}")
-            except Exception as e:
-                print(f"Failed to process sheet {table_name}: {e}")
+    results = process_sheet.map(sheets)
+    return results
 
 if __name__ == "__main__":
     etl_pipeline(
