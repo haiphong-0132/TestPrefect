@@ -110,7 +110,7 @@ def etl_pipeline(sheets: list[dict[str, str]]):
     #     unmapped=False,
     #     return_state=False
     # )
-    with ThreadPoolExecutor(max_workers=min(len(sheets), 5)) as executor:
+    with ThreadPoolExecutor(max_workers=min(len(sheets), 3)) as executor:
         futures = {
             executor.submit(
                 process_sheet,
