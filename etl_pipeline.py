@@ -158,40 +158,39 @@ def extract_from_google_sheet(sheet_url: str):
     return pd.DataFrame(records)
 
 @task
-def transform_and_clean_data(df: pd.DataFrame):
-    # Drop NA values and duplicates
-    df.dropna(inplace=True)
-    df.drop_duplicates(inplace=True)
-    
-    # Convert columns to numeric where possible
-    for col in df.columns:
-        if pd.api.types.is_string_dtype(df[col]):
-            try:
-                df[col] = pd.to_numeric(df[col], errors='ignore')
-            except Exception as e:
-                print(f"Failed to convert column '{col}': {e}")
-    
-    return df
+def extract_all_dataframes(parameters: list[dict]):
+    dataframes = {}
+    for param in parameters:
+        df = extract_from_google_sheet(param['sheet_url'])
+        dataframes[param['table_name']] = df
+    return dataframes
 
 @task
-def merge_tables(tables_info: list[dict]):
-    # Extract DataFrames
-    dataframes = []
-    for table in tables_info:
-        df = extract_from_google_sheet(table['sheet_url'])
-        df = transform_and_clean_data(df)
-        df = df.rename(columns=table.get('column_mapping', {}))
-        dataframes.append((df, table['join_key']))
-    
-    # Merge tables
-    result_df = dataframes[0][0]
-    for df, join_key in dataframes[1:]:
-        result_df = pd.merge(result_df, df, on=join_key, how=tables_info[0].get('merge_type', 'inner'))
-    
-    return result_df
+def merge_tables(dataframes: dict):
+    # Merge steps as specified in the requirements
+    merge_order = [
+        ('categories', 'products', 'categoryID'),
+        ('cate_prd', 'suppliers', 'supplierID'),
+        ('cate_prd_supp', 'order_details', 'productID'),
+        ('cate_prd_supp_order_details', 'orders', 'orderID'),
+        ('cate_prd_supp_order_details_ord', 'customers', 'customerID'),
+        ('cate_prd_supp_order_details_ord_cus', 'employees', 'employeeID'),
+        ('cate_prd_supp_order_details_ord_cus_empl', 'employee_territories', 'employeeID'),
+        ('cate_prd_supp_order_details_ord_cus_empl_emplt', 'territories', 'territoryID'),
+        ('cate_prd_supp_order_details_ord_cus_empl_emplt_teri', 'regions', 'regionID'),
+        
+    ]
+
+    df_merged = dataframes['categories']
+
+    for prev_name, next_name, merge_key in merge_order:
+        # Merge the previous merged dataframe with the next table
+        df_merged = pd.merge(df_merged, dataframes[next_name], on=merge_key, how='inner')
+
+    return df_merged
 
 @task
-def load_to_sql_server(df: pd.DataFrame, table_name: str):
+def load_to_sql_server(df: pd.DataFrame, table_name: str = 'final_merged_table'):
     with pyodbc.connect(conn_str) as conn:
         cursor = conn.cursor()
 
@@ -213,8 +212,10 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         
         columns_str = ', '.join(column_defs)
 
+        # Drop table if it exists
         cursor.execute(f"IF OBJECT_ID('{table_name}') IS NOT NULL DROP TABLE [{table_name}]")
         
+        # Create table with dynamic columns
         cursor.execute(
             f"""
             CREATE TABLE [{table_name}] (
@@ -223,9 +224,11 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
             """
         )
         
+        # Prepare insert query
         placeholders = ', '.join(['?' for _ in df.columns])
         query = f"INSERT INTO [{table_name}] ({', '.join([f'[{col}]' for col in df.columns])}) VALUES ({placeholders})"
         
+        # Convert rows to handle string truncation
         def convert_row(row):
             return tuple(
                 str(val)[:4000] if isinstance(val, str) else 
@@ -234,6 +237,7 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         
         data = [convert_row(row) for row in df.itertuples(index=False)]
         
+        # Insert data
         cursor.fast_executemany = True
         cursor.executemany(query, data)
         conn.commit()
@@ -241,28 +245,21 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str):
         return f'Loaded {table_name} with {len(data)} rows'
 
 @flow(log_prints=True)
-def etl_merge_pipeline():
-    # Define tables to merge with their join keys and optional column mappings
-    tables_info = [
-        {
-            "sheet_url": "https://docs.google.com/spreadsheets/d/1TVk7_vQbl__q5a4sAgBf6_eKspeut7q_ch55VVAvsW4/edit?gid=152346427#gid=152346427",
-            "join_key": "categoryId",
-            "column_mapping": {}  # Optional: rename columns if needed
-        },
-        {
-            "sheet_url": "https://docs.google.com/spreadsheets/d/1TSWWA0GGVi3BNK9R38jK9RFQHZf7FCR-x6w0F-PY-8k/edit?gid=1925009959#gid=1925009959",
-            "join_key": "categoryId",
-            "column_mapping": {}  # Optional: rename columns if needed
-        }
-    ]
-
+def etl_merge_pipeline(parameters: list[dict]):
+    # Extract all dataframes
+    dataframes = extract_all_dataframes(parameters)
+    
     # Merge tables
-    merged_df = merge_tables(tables_info)
-
-    # Load to SQL Server
-    result = load_to_sql_server(merged_df, 'merged_categories')
-
+    merged_df = merge_tables(dataframes)
+    
+    # Load merged table to SQL Server
+    result = load_to_sql_server(merged_df)
+    
     return result
 
 if __name__ == "__main__":
-    etl_merge_pipeline()
+    # Load parameters from the same parameters.json file
+    with open('parameters.json', 'r') as f:
+        parameters = json.load(f)
+    
+    etl_merge_pipeline(parameters)
