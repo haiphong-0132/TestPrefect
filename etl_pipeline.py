@@ -245,7 +245,7 @@ def load_to_sql_server(df: pd.DataFrame, table_name: str = 'final_merged_table')
         return f'Loaded {table_name} with {len(data)} rows'
 
 @flow(log_prints=True)
-def etl_merge_pipeline(parameters: list[dict]):
+def etl_pipeline(parameters: list[dict]):
     # Extract all dataframes
     dataframes = extract_all_dataframes(parameters)
     
