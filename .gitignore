@@ -5,6 +5,3 @@ __pycache__/
 *.pyo
 
 credentials.json
-parameters.json
-create_secret.py
-automatic.py

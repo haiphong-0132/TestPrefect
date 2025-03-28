@@ -1,0 +1,81 @@
+[
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1TVk7_vQbl__q5a4sAgBf6_eKspeut7q_ch55VVAvsW4/edit?gid=152346427#gid=152346427",
+        "table_name": "categories"
+    }, 
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1TSWWA0GGVi3BNK9R38jK9RFQHZf7FCR-x6w0F-PY-8k/edit?gid=1925009959#gid=1925009959",
+        "table_name": "cate_prd_supp"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1Il_PyOALZsWloT1bL6kbYHmvxHeLDaByCF0YiBWdVJI/edit?gid=1503745736#gid=1503745736",
+        "table_name": "cate_prd_supp_order_details"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1ZGbOTAP2W2MIfo5HWvMR40RF6oWSUfR4Va9E_RvczWk/edit?gid=1647286845#gid=1647286845",
+        "table_name": "customers"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1O2Czic1NJp3L2z3bYMFKaukQhoelkiwXWxr5KvQU3FA/edit?gid=1756352808#gid=1756352808",
+        "table_name": "df_check_ytb"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1NZjhCBeOvHyHJQlN5YIXrPWDNkgtx9Co-9lXdvTBBo4/edit?gid=593227325#gid=593227325",
+        "table_name": "df_final_check"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1PsMfDrPLyZ5BxpgORf4f-8CUVh_IDzs0ajjWvKVoSHY/edit?gid=166494365#gid=166494365",
+        "table_name": "df_final_check1"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/17UTYSuo5Zg06Mh3AIhfyeZp0xkv5gnpOYv3RO8kukoE/edit?gid=663604977#gid=663604977",
+        "table_name": "employee_territories"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/15rOu4yxl_mD94y6fKyxeBVHNi4SgOrjI-7q2lxpjyQo/edit?gid=1513155777#gid=1513155777",
+        "table_name": "employees"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1k9NGd4bhP0iVkiKEC8WV9B79mtpQZKcLRMxscm-F_rU/edit?gid=232750390#gid=232750390",
+        "table_name": "order_details"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1kP_qGN_eFywxfuAfEdeZesMmqWcaPsjyx6xO3NFmoeo/edit?gid=1354270708#gid=1354270708",
+        "table_name": "orders"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1a84Lw9MdZDXHBHtoN_bkjLUW6EhnjasHzF07SD1XLSA/edit?gid=1460457617#gid=1460457617",
+        "table_name": "products"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1PVcZmIrmy2tDfy3ALkvGe6H710ndYX5ea5tJWzJSndE/edit?gid=2129572718#gid=2129572718",
+        "table_name": "regions"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/1u5e8H6FfK4QxikpeWT4Q4jjj4BtyQTf6d1Y39lHv8UY/edit?gid=1645398705#gid=1645398705",
+        "table_name": "shippers"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/18mNafq1mzoR3yf5HaONy3rWb4lMDaouEzYDwpb5mhyM/edit?gid=1883991133#gid=1883991133",
+        "table_name": "suppliers"
+    },
+
+    {
+        "sheet_url": "https://docs.google.com/spreadsheets/d/13k1HbrZ4RnoX6y2a7C4UoLA6XULA8jRW5Glk2kmYS0w/edit?gid=26026966#gid=26026966",
+        "table_name": "territories"
+    }
+]
